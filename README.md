@@ -3,150 +3,164 @@
 
 ## 1.0 Introdução
 
-Essa é uma documentação que busca demonstrar como ataques de força bruta funcionam, e as diferentes maneiras de realiza-los. Para isso usarei a VirtualBox da Oracle, com o Kali Linux em conjunto com Nmap e Medusa além de usar o Metasploitable 2, e o DVWA para simular um ataque a formulario. Com o objetivo de demonstrar como a utilização de senhas fracas pode comprometer gravemente a segurança de sistemas 
+Essa é uma documentação que busca demonstrar como ataques de força bruta funcionam, e as diferentes maneiras de realizá-los. Para isso usarei a VirtualBox da Oracle, com o Kali Linux em conjunto com Nmap e Medusa além de usar o Metasploitable 2, e o DVWA para simular um ataque a formulário. Com o objetivo de demonstrar como a utilização de senhas fracas pode comprometer gravemente a segurança de sistemas.  
+
 ## 1.1 Preparação do ambiente
 
-Para prosseguir com os testes primeiro precisamos preparar o ambiente e para isso usei o **Metasploitable 2** e **Kali Linux**, após intala-los configurei a rede do Kali, fazendo os seguintes passos Configurações -> Network -> Adapter 2, apos isso eu clico em "Enable Network Adapter" e seleciono "Host-only adapter" em "Attached to". 
-![[Configuração Rede.png]]
-Assim eu permito que o Kali consiga se comunicar com o Metasploitable que sera o sistema a ser atacado, dessa maneira a configuração das VMs está finalizada e só precisamos abri-las 
+Para prosseguir com os testes primeiro precisamos preparar o ambiente e para isso usei o **Metasploitable 2** e **Kali Linux**, após instalá-los configurei a rede da maquina virtual do Kali Linux, fazendo os seguintes passos Configurações, Network, depois em Adapter 2, apos isso eu clico em "Enable Network Adapter" e seleciono "Host-only adapter" em "Attached to". 
+![Configuração de Rede](/images/ambiente/configuração-rede.png)
+Assim eu permito que o Kali consiga se comunicar com o Metasploitable que sera o sistema a ser atacado, dessa maneira a configuração das VMs está finalizada e só precisamos abri-las.  
+
 ## 2.0 Primeiros passos
 
-Assim que as duas maquinas estiverem abertas, e importante que na maquina associada ao Metasploitable 2, apos efetuarmos o login e senha sendo ambos msfadmin, dentro do terminal efetuamos o seguinte comando 
+Assim que as duas maquinas estiverem abertas, e importante que na maquina associada ao Metasploitable 2, apos efetuarmos o login e senha sendo ambos msfadmin, dentro do terminal efetuamos o seguinte comando:  
 ``` 
 ip a
 ```
-Com esse sendo o resultado que esperamos estando localizado em, porque o etho0 diz respeito justamente a conexão entre o Kali e o Metasploitable 2
-![[Configuração IP.png]]
-Dessas informações só precisaremos lembrar, que será o endereço de IP atacado
+Com esse sendo o resultado que esperamos estando localizado em, porque o etho0 diz respeito justamente a conexão entre o Kali e o Metasploitable 2.  
+![Configuração de IP](/images/ambiente/configuração-IP.png)
+Dessas informações só precisaremos lembrar, que será o endereço de IP atacado:
 ```
 inet 192.168.56.101
 ```
 ## 2.1 Utilizando o Nmap
 
-Apos inicializar o Kali, no terminal efetuamos o seguinte comando 
+Apos inicializar o Kali, no terminal efetuamos o seguinte comando:   
 ```
 sudo nmap -sV -p 21,22,80,445,139 192.168.56.101
 ```
-O Nmap funciona para verificar no IP, quais portas estão abertas, os hosts ativos e os serviços disponiveis. Os parametros que passei funcionam da sequinte forma
-- -sV: identifica os serviçoes e as versões das portas
+O Nmap funciona para verificar no IP, quais portas estão abertas, os hosts ativos e os serviços disponíveis. Os parâmetros que passei funcionam da seguinte forma:
+- -sV: identifica os serviços e as versões das portas
 - -p: especifica as portas que serão verificadas
 - 21,22,80,445,139: lista de portas que serão analisadas
 - 192.168.56.101: IP da maquina alvo
-Com o resultado esperado sendo o seguinte![[Nmap.png]]Assim é possivel perceber que a porta ftp está aberta, oque é possivel confirmar usando o seguinte comando
-![[FTP.png]]
-Oque prova que a porta estava realmente aberta
+
+Com o resultado esperado sendo o seguinte
+![Nmap](/images/nmap/Nmap.png)  
+Assim é possível perceber que a porta ftp está aberta, oque é possível confirmar usando o seguinte comando.  
+![FTP](/images/ftp/FTP.png)  
+Oque prova que a porta estava realmente aberta.
+
 ## 3.0 Realizando testes de força bruta em FTP
 
-Antes de efetuar o brute force, é necessario configurar quais usuarios e quais senhas a Medusa ira testar e para fazer isso usamos os seguintes comandos 
+Antes de efetuar o brute force, é necessário configurar quais usuários e quais senhas a Medusa ira testar e para fazer isso usamos os seguintes comandos:  
 ```
 echo -e "usr\nmsfadmin\nadmin\nroot" > users.txt
 ```
 ```
 echo -e "123456\nmsfadmin\npassword\nqwerty" > pass.txt 
 ```
-os parametros passados funcionam da seguinte forma
+os parâmetros passados funcionam da seguinte forma:
 - echo: exibe um texto no terminal 
 - -e: permite a interpretação de sequencias especiais como \n
 - "usr\nmsfadmin\nadmin\nroot" "123456\nmsfadmin\npassword\nqwerty": conteudo que será escrito no arquivo
-- >:  redireciona o conteudo para o arquivo que sera criado
-- users.txt e pass.txt: o nome dos arquivos que seram criados 
-Apos essa configuração é possivel utilizar o medusa com o seguinte comando
+- ">":  redireciona o conteúdo para o arquivo que sera criado
+- users.txt e pass.txt: o nome dos arquivos que serão criados
+
+Apos essa configuração é possível utilizar o medusa com o seguinte comando:  
 ```
 medusa -h 192.168.56.101 -U users.txt -P pass.txt -M ftp -t 6
 ```
-No qual os parametros significam 
+No qual os parâmetros significam:
 - -h: define o host alvo
-- -U: o arquivo que possui a lista de usuarios
+- -U: o arquivo que possui a lista de usuários
 - -P: o arquivo que possui a lista de senhas
 - -M: seleciona o modulo, nesse caso o ftp
-- -t 6: define o numero de threads simultaneas por host, nesse caso 6
-Assim quando a Medusa consegue achar um binario usuario e senha que funcionam, ele retorna dessa seguinte forma
-![[Account found.png|520]]
-E podemos verificar que isso realmente funciona, mostrando que as credenciais são veridicas e validadas pelo serviço
-![[FTP Sucess.png|381]]
+- -t 6: define o numero de threads simultâneas por host, nesse caso 6  
+
+Assim quando a Medusa consegue achar um binário usuário e senha que funcionam, ele retorna dessa seguinte forma:
+![Conta Encontrada](/images/ftp/conta-encontrada.png)
+E podemos verificar que isso realmente funciona, mostrando que as credenciais são verídicas e validadas pelo serviço.  
+![FTP Sucesso](/images/ftp/FTP-sucesso.png)
 
 ## 3.1 Realizando testes de autentificação em aplicações Web
 
-Nesse exercicio o site Dvwa sera usado, e para acessa-lo dentro do FireFox, o endereço web sera
+Nesse exercício o site Dvwa sera usado, e para acessá-lo dentro do FireFox, o endereço web sera:  
 ```
 http://192.168.56.101/dvwa/login.php
 ```
-![[DVWA.png]]Uma vez que acessado, preencho as infomações de Username e Password com quaisquer dados para que eu possa ver o que aparece quando vamos para area Inspecionar na pagina web, para isso precisamos ir para as opções de desenvolver clicando em Botão direito do mouse -> Inspect, apos isso clicamos em Network, apos isso é mostrado 
-![[Inspecionar.png]]
-Assim clico na primeira opção POST, e posteriormente em Request sendo possivel obter as seguintes informações
-![[POST.png]]
-Desse modo é possivel perceber que além dos campos que conseguimos ver que são Username e Password, o formulario ainda pede o Login, e usaremos isso a nosso favor.
-Apos isso podemos usar os mesmos arquivos de senhas e usuarios que já foram criados durando a tentativa de invasão ftp, assim usamos o seguinte comando
+![DVWA](/images/dvwa/DVWA.png)  
+Uma vez que acessado, preencho as informações de Username e Password com quaisquer dados para que eu possa ver o que aparece quando vamos para área Inspecionar na pagina web, para isso precisamos ir para as opções de desenvolver clicando em Botão direito do mouse depois em Inspect, apos isso clicamos em Network, posteriormente isso é exibido:   
+![Inspecionar](/images/dvwa/Inspecionar.png)  
+Assim clico na primeira opção POST, e posteriormente em Request sendo possível obter as seguintes informações:  
+![POST](/images/dvwa/POST.png)  
+Desse modo é possível perceber que além dos campos que conseguimos ver que são Username e Password, o formulário ainda pede o Login, e usaremos isso a nosso favor.  
+Apos isso podemos usar os mesmos arquivos de senhas e usuários que já foram criados durando a tentativa de invasão ftp, assim usamos o seguinte comando:  
 ```
 medusa -h 192.168.56.101 -U users.txt -P pass.txt -M http \
 	-m PAGE:'/dvwa/login.php' \
 	-m FORM:"username='USER'&password='PASS'&Login=Login" \
 	-m 'FAIL=Login Failed' -t 6
 ```
-No qual os seus parametros funcionam para
+No qual os seus parâmetros funcionam para:  
 - -h: define o host alvo
-- -U: o arquivo que possui a lista de usuarios
+- -U: o arquivo que possui a lista de usuários
 - -P: o arquivo que possui a lista de senhas
 - -M: seleciona o modulo, nesse caso o http
 - -m PAGE:'/dvwa/login.php': informa o caminho da pagina de login
 - -m FORM:"username='USER'&password='PASS'&Login=Login": define os campos do formulario http
 - -m 'FAIL=Login Failed': define a mensagem que é exibida quando uma tentativa falha
-- -t 6: define o numero de threads simultaneas por host, nesse caso 6
-Depois de usarmos esse comando o resultado positivo sera assim
-![[SMB Sucess.png]]
-Testanto para ver se as credenciais encontradas são realmente verdedeiras dentro do Dvwa, encontramos esse resultado
-![[Resultado DVWA.png]]
-comprovando que realmente as credenciais encontradas estavam corretas e são validadas pelo serviço
+- -t 6: define o numero de threads simultaneas por host, nesse caso 6  
+
+Depois de usarmos esse comando o resultado positivo sera assim:  
+![DVWA Sucesso](/images/dvwa/DVWA-sucesso.png)  
+Testando para ver se as credenciais encontradas são realmente verdadeiras dentro do Dvwa, encontramos esse resultado:  
+![Resultado DVWA](/images/dvwa/resultado-DVWA.png)  
+Comprovando que realmente as credenciais encontradas estavam corretas e são validadas pelo serviço.
+
 ## 3.2 Realizando testes de Password Spraying em SMB
 
-Nesse ataque em especifico não sera um brute force comum mão sim um password spraying que consiste em testar poucas senhas comuns em muitos usuarios. Desse modo diferentemente do brute force tradicional, que concentra o seu ataque em uma unica conta o password spraying tenta evitar mecanismos de bloqueio de acesso, que em geral são acionados após diversas tentativas de autentificação
-Porém antes de continuarmos precisamos entender que o serviço SMB serve para compartilhar arquivos e recursos em redes internas, feito esses primeiros adendos é possivel iniciar o ataque
-Portanto a primeira etapa para isso usei o enum4 para enumerar os usuarios, utilizando o seguinte comando
+Nesse ataque em especifico não sera um brute force comum mão sim um password spraying que consiste em testar poucas senhas comuns em muitos usuários. Desse modo diferentemente do brute force tradicional, que concentra o seu ataque em uma única conta o password spraying tenta evitar mecanismos de bloqueio de acesso, que em geral são acionados após diversas tentativas de autentificação.  
+Porém antes de continuarmos precisamos entender que o serviço SMB serve para compartilhar arquivos e recursos em redes internas, feito esses primeiros adendos é possível iniciar o ataque
+Portanto a primeira etapa para isso usei o enum4 para enumerar os usuários, utilizando o seguinte comando:  
 ```
 enum4linux -a 192.168.56.101 | tee enum4_output.txt
 ```
-Onde os parametros funcionam para da seguinte forma
-- -a: utiliza todas as formas de enumeração
+Onde os parâmetros funcionam para da seguinte forma:
+- -a: utiliza todas as formas de enumeração.  
 - tee: grava o resultado no arquivo escolhido no caso enum4_output.txt
-Apos isso para abrir o resultado, o seguinte comando é usado 
+
+Apos isso para abrir o resultado, o seguinte comando é usado.  
 ```
 less enum4_output.txt
 ```
-Sendo possivel encontrar o nome dos usuarios da seguinte forma
-![[Password Spraying Result.png]]
-Uma vez que possuimos os nomes do usuarios é possivel criar uma word list focada nesses usuarios, utilizando o comando 
+Sendo possível encontrar o nome dos usuários da seguinte forma:  
+![Resultado Password Spraying](/images/smb/password-spraying.png)  
+
+Uma vez que possuímos os nomes do usuários é possível criar uma word list focada nesses usuários, utilizando o comando:  
 ```
 echo -e "user\nmsfadmin\nservice\nroot" > smb_users.txt
 ```
-E para a word list de senhas
+E para a word list de senhas:  
 ```
 echo -e "123456\npassword\nwelcome123\nmsfadmin" > senhas_spray.txt
 ```
-Apos a criação dessas duas listas podemos usar a medusa para efeutar o ataque
+Apos a criação dessas duas listas podemos usar a medusa para efeutar o ataque:  
 ```
 medusa -h 192.168.56.101 -U smb_users.txt -P senhas_spray.txt -M smbnt -t 6
 ```
-Assim o resultado positivo sera da seguinte maneira
-![[SMB Found.png]]
-Outra coisa que é possivel notar e como o password spraying foi conduzido, uma vez que é possivel ver que uma mesma senha foi testada em varios usuario, como mostra a imagem
-![[Password Spraying Result.png]]
-Desse modo para verificarmos essa informação usamos o seguinte comando 
+Assim o resultado positivo sera da seguinte maneira:  
+![SMB](/images/smb/SMB.png)
+Outra coisa que é possível notar e como o password spraying foi conduzido, uma vez que é possível ver que uma mesma senha foi testada em vários usuário, como mostra a imagem:  
+![Resultado Password Spraying](/images/smb/password-spraying-resultado.png)  
+Desse modo para verificarmos essa informação usamos o seguinte comando:  
 ```
 smbclient -L //192.168.56.101 -U msfadmin
 ```
-E usamos a mesma senha encontrada pelo medusa, com o resultado sendo esse
-![[SMB Result.png]]
-Comprovando portanto que as credenciais são aceitas e validadas pelo serviço
+E usamos a mesma senha encontrada pelo medusa, com o resultado sendo esse:  
+![Resultado SMB](/images/smb/SMB-resultado.png)
+Comprovando portanto que as credenciais são aceitas e validadas pelo serviço  
+
 ## 4.0 Medidas de Segurança
 
-O cerne para que sistemas e portas não sejam invadidos consistem em ações bem simples, como por exemplo utilizar senha mais complexas oque acaba por fazer com que ataques de brute force demorem muito mais para serem realizados uma vez que as possibilidades de senhas aumentam exponencialmente, outro cuidado necessario é sempre estar antenado quando a vazamentos de dados porque ataques reais utilizam listas de usuarios e senhas com varias palavras muitas vezes utilizando vazamentos para abastecer essas listas e as tornarem cada vez mais certeiras. Outro metodo que deve ser usado em combinação com senhas mais complesão é utilizar o MFA.
-Tendo como foco aplicações Web uma maneira de aumentar a sua segurança é por meio de bloqueio temporario quando houverem muitas requisições simultaneas de modo a parecer suspeito e usar o CAPTCHA.
-Pensando em serviços como FTP, uma medida de segurança e sempre desabilita-lo quando ele for desnecessario, com isso garantindo que a porta ligada a ele não fique aberta e acabe se tornando potencialmente um vetor de ataque.
-Já se tratando de serviços SMB, o ideial e utilizar um firewall para restringir o seu acesso e aplicar politicas de autentificação mais rigidas, para inibir combinações de usuario e senha muito faceis de se descobrir
+O cerne para que sistemas e portas não sejam invadidos consistem em ações bem simples, como por exemplo utilizar senha mais complexas oque acaba por fazer com que ataques de brute force demorem muito mais para serem realizados uma vez que as possibilidades de senhas aumentam exponencialmente, outro cuidado necessário é sempre estar antenado quando a vazamentos de dados porque ataques reais utilizam listas de usuários e senhas com varias palavras muitas vezes utilizando vazamentos para abastecer essas listas e as tornarem cada vez mais certeiras. Outro método que deve ser usado em combinação com senhas mais complexas é utilizar o MFA.  
+Tendo como foco aplicações Web uma maneira de aumentar a sua segurança é por meio de bloqueio temporário quando houverem muitas requisições simultâneas de modo a parecer suspeito e usar o CAPTCHA.  
+Pensando em serviços como FTP, uma medida de segurança e sempre desabilitá-lo quando ele for desnecessário, com isso garantindo que a porta ligada a ele não fique aberta e acabe se tornando potencialmente um vetor de ataque.
+Já se tratando de serviços SMB, o ideal e utilizar um firewall para restringir o seu acesso e aplicar politicas de autentificação mais rígidas, para inibir combinações de usuário e senha muito fáceis de se descobrir.
 
 ## 5.0 Referencias
 
-As referencias das ferrementas utilizadas são as seguintes
+As referencias das ferramentas utilizadas são as seguintes:
 - [Medusa – GitHub](https://github.com/jmk-foofus/medusa?utm_source=chatgpt.com)
 - [Kali Linux](https://www.kali.org/docs/?utm_source=chatgpt.com)
 - [Nmap Documentation](https://nmap.org/book/man.html?utm_source=chatgpt.com)
