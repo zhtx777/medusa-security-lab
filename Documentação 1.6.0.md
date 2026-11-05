@@ -1,16 +1,5 @@
-Class: [[Bootcamp]]
-Date: 2026-11-04
-Topics: #security 
-Objetivo: 
-- Compreender ataques de força bruta em diferentes serviços (FTP, Web, SMB);
-- Utilizar o **Kali Linux** e o **Medusa** para auditoria de segurança em ambiente controlado;
-- Documentar processos técnicos de forma clara e estruturada;
-- Reconhecer vulnerabilidades comuns e propor medidas de mitigação;
-- Utilizar o GitHub como portfólio técnico para compartilhar documentação e evidências.
 
-Isso é basicamente oque eu fiz durante todo o curso, acho que comuntar isso fica simples, *só preciso lembrar de incluir imagens e trechos de codigo*
-
-# Medusa e Kali Linux e a vulnerabilidade dos sistemas
+# medusa-security-lab
 
 ## 1.0 Introdução
 
