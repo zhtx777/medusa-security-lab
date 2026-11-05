@@ -8,7 +8,7 @@ Essa é uma documentação que busca demonstrar como ataques de força bruta fun
 ## 1.1 Preparação do ambiente
 
 Para prosseguir com os testes primeiro precisamos preparar o ambiente e para isso usei o **Metasploitable 2** e **Kali Linux**, após instalá-los configurei a rede da maquina virtual do Kali Linux, fazendo os seguintes passos Configurações, Network, depois em Adapter 2, apos isso eu clico em "Enable Network Adapter" e seleciono "Host-only adapter" em "Attached to". 
-![Configuração de Rede](/images/ambiente/configuração-rede.png)
+![Configuração de Rede](images/ambiente/configuração-rede.png)
 Assim eu permito que o Kali consiga se comunicar com o Metasploitable que sera o sistema a ser atacado, dessa maneira a configuração das VMs está finalizada e só precisamos abri-las.  
 
 ## 2.0 Primeiros passos
@@ -18,7 +18,7 @@ Assim que as duas maquinas estiverem abertas, e importante que na maquina associ
 ip a
 ```
 Com esse sendo o resultado que esperamos estando localizado em, porque o etho0 diz respeito justamente a conexão entre o Kali e o Metasploitable 2.  
-![Configuração de IP](/images/ambiente/configuração-IP.png)
+![Configuração de IP](images/ambiente/configuração-IP.png)
 Dessas informações só precisaremos lembrar, que será o endereço de IP atacado:
 ```
 inet 192.168.56.101
@@ -36,9 +36,9 @@ O Nmap funciona para verificar no IP, quais portas estão abertas, os hosts ativ
 - 192.168.56.101: IP da maquina alvo
 
 Com o resultado esperado sendo o seguinte
-![Nmap](/images/nmap/Nmap.png)  
+![Nmap](images/nmap/Nmap.png)  
 Assim é possível perceber que a porta ftp está aberta, oque é possível confirmar usando o seguinte comando.  
-![FTP](/images/ftp/FTP.png)  
+![FTP](images/ftp/FTP.png)  
 Oque prova que a porta estava realmente aberta.
 
 ## 3.0 Realizando testes de força bruta em FTP
@@ -69,9 +69,9 @@ No qual os parâmetros significam:
 - -t 6: define o numero de threads simultâneas por host, nesse caso 6  
 
 Assim quando a Medusa consegue achar um binário usuário e senha que funcionam, ele retorna dessa seguinte forma:
-![Conta Encontrada](/images/ftp/conta-encontrada.png)
+![Conta Encontrada](images/ftp/conta-encontrada.png)
 E podemos verificar que isso realmente funciona, mostrando que as credenciais são verídicas e validadas pelo serviço.  
-![FTP Sucesso](/images/ftp/FTP-sucesso.png)
+![FTP Sucesso](images/ftp/FTP-sucesso.png)
 
 ## 3.1 Realizando testes de autentificação em aplicações Web
 
@@ -79,11 +79,11 @@ Nesse exercício o site Dvwa sera usado, e para acessá-lo dentro do FireFox, o 
 ```
 http://192.168.56.101/dvwa/login.php
 ```
-![DVWA](/images/dvwa/DVWA.png)  
+![DVWA](images/dvwa/DVWA.png)  
 Uma vez que acessado, preencho as informações de Username e Password com quaisquer dados para que eu possa ver o que aparece quando vamos para área Inspecionar na pagina web, para isso precisamos ir para as opções de desenvolver clicando em Botão direito do mouse depois em Inspect, apos isso clicamos em Network, posteriormente isso é exibido:   
-![Inspecionar](/images/dvwa/Inspecionar.png)  
+![Inspecionar](images/dvwa/Inspecionar.png)  
 Assim clico na primeira opção POST, e posteriormente em Request sendo possível obter as seguintes informações:  
-![POST](/images/dvwa/POST.png)  
+![POST](images/dvwa/POST.png)  
 Desse modo é possível perceber que além dos campos que conseguimos ver que são Username e Password, o formulário ainda pede o Login, e usaremos isso a nosso favor.  
 Apos isso podemos usar os mesmos arquivos de senhas e usuários que já foram criados durando a tentativa de invasão ftp, assim usamos o seguinte comando:  
 ```
@@ -103,9 +103,9 @@ No qual os seus parâmetros funcionam para:
 - -t 6: define o numero de threads simultaneas por host, nesse caso 6  
 
 Depois de usarmos esse comando o resultado positivo sera assim:  
-![DVWA Sucesso](/images/dvwa/DVWA-sucesso.png)  
+![DVWA Sucesso](images/dvwa/DVWA-sucesso.png)  
 Testando para ver se as credenciais encontradas são realmente verdadeiras dentro do Dvwa, encontramos esse resultado:  
-![Resultado DVWA](/images/dvwa/resultado-DVWA.png)  
+![Resultado DVWA](images/dvwa/resultado-DVWA.png)  
 Comprovando que realmente as credenciais encontradas estavam corretas e são validadas pelo serviço.
 
 ## 3.2 Realizando testes de Password Spraying em SMB
@@ -125,7 +125,7 @@ Apos isso para abrir o resultado, o seguinte comando é usado.
 less enum4_output.txt
 ```
 Sendo possível encontrar o nome dos usuários da seguinte forma:  
-![Resultado Password Spraying](/images/smb/password-spraying.png)  
+![Resultado Password Spraying](images/smb/password-spraying.png)  
 
 Uma vez que possuímos os nomes do usuários é possível criar uma word list focada nesses usuários, utilizando o comando:  
 ```
@@ -140,15 +140,15 @@ Apos a criação dessas duas listas podemos usar a medusa para efeutar o ataque:
 medusa -h 192.168.56.101 -U smb_users.txt -P senhas_spray.txt -M smbnt -t 6
 ```
 Assim o resultado positivo sera da seguinte maneira:  
-![SMB](/images/smb/SMB.png)
+![SMB](images/smb/SMB.png)
 Outra coisa que é possível notar e como o password spraying foi conduzido, uma vez que é possível ver que uma mesma senha foi testada em vários usuário, como mostra a imagem:  
-![Resultado Password Spraying](/images/smb/password-spraying-resultado.png)  
+![Resultado Password Spraying](images/smb/password-spraying-resultado.png)  
 Desse modo para verificarmos essa informação usamos o seguinte comando:  
 ```
 smbclient -L //192.168.56.101 -U msfadmin
 ```
 E usamos a mesma senha encontrada pelo medusa, com o resultado sendo esse:  
-![Resultado SMB](/images/smb/SMB-resultado.png)
+![Resultado SMB](images/smb/SMB-resultado.png)
 Comprovando portanto que as credenciais são aceitas e validadas pelo serviço  
 
 ## 4.0 Medidas de Segurança
