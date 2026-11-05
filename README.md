@@ -10,6 +10,14 @@ Essa é uma documentação que busca demonstrar como ataques de força bruta fun
 Para prosseguir com os testes primeiro precisamos preparar o ambiente e para isso usei o **Metasploitable 2** e **Kali Linux**, após instalá-los configurei a rede da maquina virtual do Kali Linux, fazendo os seguintes passos Configurações, Network, depois em Adapter 2, apos isso eu clico em "Enable Network Adapter" e seleciono "Host-only adapter" em "Attached to". 
 ![Configuração de Rede](images/ambiente/configuração-rede.png)
 Assim eu permito que o Kali consiga se comunicar com o Metasploitable que sera o sistema a ser atacado, dessa maneira a configuração das VMs está finalizada e só precisamos abri-las.  
+Dessa forma toda a configuração ficaria dessa forma:
+| Componente | Configuração | 
+| -------- | -------- |
+| Sistema Atacante   | Kali   |
+| Sistema Alvo   | Metasploitable 2   | 
+| Aplicação Web   | DVWA   |
+| Virtualizador   | Oracle VirtualBox   | 
+
 
 ## 2.0 Primeiros passos
 
